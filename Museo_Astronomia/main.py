@@ -3,12 +3,13 @@ from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout,
     QLabel, QStackedWidget, QHBoxLayout, QPushButton, QFrame
 )
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
+from PySide6.QtCore import Qt,QUrl
+from PySide6.QtGui import QFont, QPixmap
 
 # Importar páginas
 from paginas.principal import crear_pagina_principal
 from paginas.explorar import crear_pagina_explorar
+from paginas.galeria import crear_pagina_galeria
 
 
 class MainWindow(QMainWindow):
@@ -20,7 +21,7 @@ class MainWindow(QMainWindow):
         # Estilo general
         self.setStyleSheet("""
             QMainWindow {
-                background-color: #0b0c10;
+                background-color: #74AAC1;
                 color: #ffffff;
             }
 
@@ -29,12 +30,12 @@ class MainWindow(QMainWindow):
                 border-bottom: 2px solid #8a2be2;
             }
 
-            QLabel#logo {
+            QLabel#logo_texto {
                 color: #8a2be2;
                 font-family: "Orbitron", "Segoe UI";
                 font-size: 22px;
                 font-weight: bold;
-                padding: 10px 30px;
+                padding-left: 10px;
             }
 
             QPushButton#nav_button {
@@ -60,7 +61,7 @@ class MainWindow(QMainWindow):
             }
 
             QLabel#titulo_pagina {
-                color: #ffffff;
+                color: #293170;
                 font-size: 36px;
                 font-weight: bold;
                 margin: 20px;
@@ -85,16 +86,16 @@ class MainWindow(QMainWindow):
 
         # Páginas registradas
         self.paginas = {
-            "INICIO": crear_pagina_principal(self),
-            "EXPLORAR": crear_pagina_explorar(self),
+            "Inicio": crear_pagina_principal(self),
+            "Explorar": crear_pagina_explorar(self),
+            "Galeria": crear_pagina_galeria(self)
         }
 
         for pagina in self.paginas.values():
             self.stack.addWidget(pagina)
 
         central_widget.setLayout(main_layout)
-
-        self.mostrar_pagina("INICIO")
+        self.mostrar_pagina("Inicio")
 
     def crear_barra_navegacion(self):
         nav_frame = QFrame()
@@ -105,14 +106,32 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(20, 0, 20, 0)
         layout.setSpacing(0)
 
-        logo = QLabel("🌌 COSMOS EXPLORER")
-        logo.setObjectName("logo")
-        layout.addWidget(logo)
+        # 🔹 Contenedor del logo + texto
+        logo_container = QWidget()
+        logo_layout = QHBoxLayout(logo_container)
+        logo_layout.setContentsMargins(0, 0, 0, 0)
+        logo_layout.setSpacing(10)
+
+        logo_icono = QLabel()
+        pixmap = QPixmap("logo.png")
+        if not pixmap.isNull():
+            logo_icono.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        else:
+            logo_icono.setText("")
+            logo_icono.setStyleSheet("font-size: 28px; color: #70155F;")
+
+        logo_texto = QLabel("Horizontes Estelares")
+        logo_texto.setObjectName("logo_texto")
+
+        logo_layout.addWidget(logo_icono)
+        logo_layout.addWidget(logo_texto)
+        layout.addWidget(logo_container)
+
         layout.addStretch()
 
-        # Botones de navegación
+        # 🔹 Botones de navegación
         self.botones_nav = {}
-        secciones = ["INICIO", "EXPLORAR"]
+        secciones = ["Inicio", "Explorar", "Galeria"]
 
         for seccion in secciones:
             boton = QPushButton(seccion)
@@ -136,13 +155,14 @@ class MainWindow(QMainWindow):
             self.botones_nav[nombre].setObjectName("nav_button_active")
             self.botones_nav[nombre].style().unpolish(self.botones_nav[nombre])
             self.botones_nav[nombre].style().polish(self.botones_nav[nombre])
+            self.botones_nav[nombre].update()
 
         self.stack.setCurrentWidget(self.paginas[nombre])
 
 
 def main():
     app = QApplication(sys.argv)
-    app.setFont(QFont("Segoe UI", 11))
+    app.setFont(QFont("Verdana", 11))
     win = MainWindow()
     win.show()
     sys.exit(app.exec())
