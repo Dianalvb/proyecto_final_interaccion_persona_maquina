@@ -1,8 +1,8 @@
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QMovie
-
-
+ 
+ 
 def crear_pagina_principal(parent=None):
     pagina = QWidget(parent)
     layout = QVBoxLayout(pagina)
@@ -38,12 +38,14 @@ def crear_pagina_principal(parent=None):
     descripcion.setWordWrap(True)
     descripcion.setStyleSheet("""
         color: #e0e0e0;
+        color: #e0e0e0;
         font-size: 18px;
+        line-height: 1.4;
         line-height: 1.4;
     """)
 
     layout.addWidget(titulo)
     layout.addWidget(descripcion)
     layout.addStretch()
-
+ 
     return pagina
