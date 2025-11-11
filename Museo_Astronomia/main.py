@@ -113,11 +113,18 @@ class MainWindow(QMainWindow):
         logo_layout.setSpacing(10)
 
         logo_icono = QLabel()
-        pixmap = QPixmap("logo.png")
+        import os
+
+
+        ruta_logo = os.path.join(os.path.dirname(__file__), "logo.png")
+        print("Ruta logo:", ruta_logo, "Existe:", os.path.exists(ruta_logo))
+
+        pixmap = QPixmap(ruta_logo)
+
         if not pixmap.isNull():
             logo_icono.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         else:
-            logo_icono.setText("")
+            logo_icono.setText("⚠️?")
             logo_icono.setStyleSheet("font-size: 28px; color: #70155F;")
 
         logo_texto = QLabel("Horizontes Estelares")
