@@ -12,7 +12,6 @@ from PySide6.QtGui import QFont, QPixmap
 from paginas.principal import crear_pagina_principal
 from paginas.explorar import crear_pagina_explorar
 from paginas.galeria import crear_pagina_galeria
-
 print("⚙️ Ejecutando versión actualizada de main.py")
 
 class MainWindow(QMainWindow):

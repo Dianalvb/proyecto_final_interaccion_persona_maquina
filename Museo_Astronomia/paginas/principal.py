@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QScrollArea, QStackedLayout, QFrame
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QScrollArea, QFrame
 from PySide6.QtCore import Qt, QUrl, QTimer
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtMultimediaWidgets import QVideoWidget
@@ -6,6 +6,9 @@ import os
 
 
 def crear_pagina_principal(parent=None, base_path="."):
+    # Forzar el backend correcto en Windows (evita que se pierda el audio)
+    os.environ["QT_MEDIA_BACKEND"] = "windows"
+
     pagina = QWidget(parent)
     layout_principal = QVBoxLayout(pagina)
     layout_principal.setContentsMargins(0, 0, 0, 0)
@@ -21,7 +24,7 @@ def crear_pagina_principal(parent=None, base_path="."):
     layout_scroll.setContentsMargins(0, 0, 0, 0)
     layout_scroll.setSpacing(0)
 
-    # 🪐 Banner superior con solo el video
+    # 🪐 Banner superior con video
     banner = QFrame()
     banner.setMinimumHeight(800)
     banner.setStyleSheet("background-color: black;")
@@ -30,38 +33,42 @@ def crear_pagina_principal(parent=None, base_path="."):
     layout_banner.setContentsMargins(0, 0, 0, 0)
     layout_banner.setSpacing(0)
 
-    # 🎞️ Video local de fondo
+    # 🎞️ Video local
     video_widget = QVideoWidget()
     layout_banner.addWidget(video_widget)
 
-    player = QMediaPlayer()
-    audio_output = QAudioOutput()
-    player.setAudioOutput(audio_output)
-    player.setVideoOutput(video_widget)
+    # 🔊 Player y salida de audio — deben guardarse en 'pagina'
+    pagina.player = QMediaPlayer()
+    pagina.audio_output = QAudioOutput()
+    pagina.audio_output.setVolume(1.0)  # Volumen al 100 %
 
-    # Ruta del video
-    ruta_video = os.path.join(os.path.dirname(__file__), "..", "espacio.mp4")
+    # Asignar salida y destino de video
+    pagina.player.setAudioOutput(pagina.audio_output)
+    pagina.player.setVideoOutput(video_widget)
+
+    # 📂 Ruta del video
+    ruta_video = os.path.join(os.path.dirname(__file__), "..", "espacio1.mp4")
     ruta_video = os.path.abspath(ruta_video)
     print("Ruta del video:", ruta_video, "Existe:", os.path.exists(ruta_video))
 
-    player.setSource(QUrl.fromLocalFile(ruta_video))
+    pagina.player.setSource(QUrl.fromLocalFile(ruta_video))
 
-    # 🔁 Loop automático de 22 segundos
+    # 🔁 Bucle de 22 segundos
     duracion_ms = 22000
-    timer = QTimer()
-    timer.timeout.connect(lambda: player.setPosition(0))
+    timer = QTimer(pagina)
+    timer.timeout.connect(lambda: pagina.player.setPosition(0))
 
     def iniciar_video(status):
         if status == QMediaPlayer.MediaStatus.LoadedMedia:
-            player.play()
+            pagina.player.play()
             timer.start(duracion_ms)
 
-    player.mediaStatusChanged.connect(iniciar_video)
+    pagina.player.mediaStatusChanged.connect(iniciar_video)
 
-    # 🎬 Iniciar video al cargar
-    player.play()
+    # ▶️ Iniciar reproducción
+    pagina.player.play()
 
-    # 📜 Secciones informativas
+    # Añadir banner y secciones al scroll
     layout_scroll.addWidget(banner)
 
     bienvenida = QLabel("""
