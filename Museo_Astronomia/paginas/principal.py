@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QScrollArea, QFrame
 from PySide6.QtCore import Qt, QUrl, QTimer
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtMultimediaWidgets import QVideoWidget
+from PySide6.QtGui import QPixmap
 import os
 
 
@@ -71,6 +72,7 @@ def crear_pagina_principal(parent=None, base_path="."):
     # Añadir banner y secciones al scroll
     layout_scroll.addWidget(banner)
 
+    # 🧭 Sección de bienvenida
     bienvenida = QLabel("""
         <h2 style="color:#293170; text-align:center;">Explora el universo</h2>
         <p style="color:#333333; text-align:center; font-size:20px; max-width:900px; margin:auto;">
@@ -82,6 +84,44 @@ def crear_pagina_principal(parent=None, base_path="."):
     bienvenida.setStyleSheet("background-color: #f5f5f5; padding: 60px;")
     layout_scroll.addWidget(bienvenida)
 
+    # 🖼️ Imagen e historia del museo
+    historia_frame = QFrame()
+    historia_layout = QVBoxLayout(historia_frame)
+    historia_layout.setContentsMargins(0, 0, 0, 0)
+    historia_layout.setSpacing(15)
+    historia_layout.setAlignment(Qt.AlignCenter)
+
+    # Ruta de la imagen
+    ruta_historia = os.path.join(os.path.dirname(__file__), "..", "imagenes", "fuera.png")
+
+    if os.path.exists(ruta_historia):
+        imagen_historia = QLabel()
+        imagen_pixmap = QPixmap(ruta_historia)
+        imagen_pixmap = imagen_pixmap.scaledToWidth(600, Qt.SmoothTransformation)
+        imagen_historia.setPixmap(imagen_pixmap)
+        imagen_historia.setAlignment(Qt.AlignCenter)
+        historia_layout.addWidget(imagen_historia)
+    else:
+        print("⚠ No se encontró la imagen del museo:", ruta_historia)
+
+    # Texto descriptivo / historia
+    texto_historia = QLabel("""
+        <h3 style="color:#293170; text-align:center;">La historia detrás del museo</h3>
+        <p style="color:#333333; text-align:center; font-size:18px; max-width:900px; margin:auto;">
+            Nuestro museo, recientemente inaugurado, fue creado por la <b>Ingeniebra Diana</b>.  
+            Gracias a su creatividad y pasión por la astronomía, dio vida a este impresionante espacio 
+            dedicado a inspirar a nuevas generaciones de exploradores del universo. 🌌
+            <br><br><i>¡Ven a visitarlo y descubre todo lo que el cosmos tiene para ofrecer!</i>
+        </p>
+    """)
+    texto_historia.setWordWrap(True)
+    texto_historia.setAlignment(Qt.AlignCenter)
+    texto_historia.setStyleSheet("background-color: #fafafa; padding: 60px; border-top: 2px solid #ddd;")
+
+    historia_layout.addWidget(texto_historia)
+    layout_scroll.addWidget(historia_frame)
+
+    # 🌠 Sección adicional
     extra = QLabel("""
         <h2 style="color:#1a1a2e; text-align:center;">Más allá del cielo</h2>
         <p style="color:#444; text-align:center; font-size:18px; max-width:800px; margin:auto;">
