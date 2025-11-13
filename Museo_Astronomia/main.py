@@ -1,9 +1,11 @@
 import sys
+import os
+from functools import partial
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout,
     QLabel, QStackedWidget, QHBoxLayout, QPushButton, QFrame
 )
-from PySide6.QtCore import Qt,QUrl
+from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QFont, QPixmap
 
 # Importar páginas
@@ -11,6 +13,7 @@ from paginas.principal import crear_pagina_principal
 from paginas.explorar import crear_pagina_explorar
 from paginas.galeria import crear_pagina_galeria
 
+print("⚙️ Ejecutando versión actualizada de main.py")
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -18,7 +21,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Museo de Astronomía")
         self.resize(1400, 900)
 
-        # Estilo general
+        # 🎨 Estilo general
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #74AAC1;
@@ -78,9 +81,11 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
+        # Barra de navegación
         nav_bar = self.crear_barra_navegacion()
         main_layout.addWidget(nav_bar)
 
+        # Contenedor de páginas
         self.stack = QStackedWidget()
         main_layout.addWidget(self.stack)
 
@@ -106,21 +111,18 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(20, 0, 20, 0)
         layout.setSpacing(0)
 
-        # 🔹 Contenedor del logo + texto
+        # 🔹 Logo + texto
         logo_container = QWidget()
         logo_layout = QHBoxLayout(logo_container)
         logo_layout.setContentsMargins(0, 0, 0, 0)
         logo_layout.setSpacing(10)
 
         logo_icono = QLabel()
-        import os
-
 
         ruta_logo = os.path.join(os.path.dirname(__file__), "logo.png")
         print("Ruta logo:", ruta_logo, "Existe:", os.path.exists(ruta_logo))
 
         pixmap = QPixmap(ruta_logo)
-
         if not pixmap.isNull():
             logo_icono.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         else:
@@ -144,7 +146,10 @@ class MainWindow(QMainWindow):
             boton = QPushButton(seccion)
             boton.setObjectName("nav_button")
             boton.setFixedHeight(80)
-            boton.clicked.connect(lambda checked, s=seccion: self.mostrar_pagina(s))
+
+            # ✅ Conexión segura con partial (evita error del 'checked')
+            boton.clicked.connect(partial(self.mostrar_pagina, seccion))
+
             layout.addWidget(boton)
             self.botones_nav[seccion] = boton
 
@@ -153,6 +158,7 @@ class MainWindow(QMainWindow):
         return nav_frame
 
     def mostrar_pagina(self, nombre):
+        """Cambia la página visible y actualiza el estilo activo de los botones"""
         for boton in self.botones_nav.values():
             boton.setObjectName("nav_button")
             boton.style().unpolish(boton)
