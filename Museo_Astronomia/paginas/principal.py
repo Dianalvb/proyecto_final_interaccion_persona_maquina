@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QScrollArea, QStackedLayout, QFrame
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QMovie
+from PySide6.QtCore import Qt, QUrl, QTimer
+from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
+from PySide6.QtMultimediaWidgets import QVideoWidget
 import os
 
 
@@ -10,7 +11,6 @@ def crear_pagina_principal(parent=None, base_path="."):
     layout_principal.setContentsMargins(0, 0, 0, 0)
     layout_principal.setSpacing(0)
 
-    # Scroll principal
     scroll = QScrollArea()
     scroll.setWidgetResizable(True)
     scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
@@ -21,64 +21,49 @@ def crear_pagina_principal(parent=None, base_path="."):
     layout_scroll.setContentsMargins(0, 0, 0, 0)
     layout_scroll.setSpacing(0)
 
-    # ==============================
-    # 🌠 Banner tipo Louvre
-    # ==============================
+    # 🪐 Banner superior con solo el video
     banner = QFrame()
     banner.setMinimumHeight(800)
     banner.setStyleSheet("background-color: black;")
 
-    # Apilamos GIF + overlay + texto centrado
-    layout_banner = QStackedLayout(banner)
+    layout_banner = QVBoxLayout(banner)
     layout_banner.setContentsMargins(0, 0, 0, 0)
-    layout_banner.setStackingMode(QStackedLayout.StackAll)
+    layout_banner.setSpacing(0)
 
-    # 🎞️ GIF de fondo
-    gif_label = QLabel()
-    gif_label.setAlignment(Qt.AlignCenter)
-    gif_label.setScaledContents(True)
-    ruta_gif = os.path.join(base_path, "espacio.gif")
-    ruta_gif = os.path.abspath(ruta_gif)
-    print("Ruta del GIF:", ruta_gif, "Existe:", os.path.exists(ruta_gif))
+    # 🎞️ Video local de fondo
+    video_widget = QVideoWidget()
+    layout_banner.addWidget(video_widget)
 
-    movie = QMovie(ruta_gif)
-    gif_label.setMovie(movie)
-    movie.start()
+    player = QMediaPlayer()
+    audio_output = QAudioOutput()
+    player.setAudioOutput(audio_output)
+    player.setVideoOutput(video_widget)
 
-    # 🕶️ Capa semitransparente
-    overlay = QLabel()
-    overlay.setStyleSheet("background-color: rgba(0, 0, 0, 100);")
+    # Ruta del video
+    ruta_video = os.path.join(os.path.dirname(__file__), "..", "espacio.mp4")
+    ruta_video = os.path.abspath(ruta_video)
+    print("Ruta del video:", ruta_video, "Existe:", os.path.exists(ruta_video))
 
-    # ✨ Contenedor del texto (centrado con ancho limitado)
-    texto_contenedor = QWidget()
-    texto_layout = QVBoxLayout(texto_contenedor)
-    texto_layout.setContentsMargins(0, 0, 0, 0)
-    texto_layout.setAlignment(Qt.AlignCenter)
+    player.setSource(QUrl.fromLocalFile(ruta_video))
 
-    texto = QLabel("Bienvenido al Museo de Astronomía")
-    texto.setAlignment(Qt.AlignCenter)
-    texto.setWordWrap(True)
-    texto.setStyleSheet("""
-        color: white;
-        font-size: 56px;
-        font-weight: bold;
-        background: transparent;
-        max-width: 900px;
-        padding: 30px;
-    """)
+    # 🔁 Loop automático de 22 segundos
+    duracion_ms = 22000
+    timer = QTimer()
+    timer.timeout.connect(lambda: player.setPosition(0))
 
-    texto_layout.addWidget(texto, alignment=Qt.AlignCenter)
+    def iniciar_video(status):
+        if status == QMediaPlayer.MediaStatus.LoadedMedia:
+            player.play()
+            timer.start(duracion_ms)
 
-    # Apilar todo (de abajo hacia arriba)
-    layout_banner.addWidget(gif_label)
-    layout_banner.addWidget(overlay)
-    layout_banner.addWidget(texto_contenedor)
+    player.mediaStatusChanged.connect(iniciar_video)
 
+    # 🎬 Iniciar video al cargar
+    player.play()
+
+    # 📜 Secciones informativas
     layout_scroll.addWidget(banner)
 
-    # ==============================
-    # 🌌 Sección inferior
-    # ==============================
     bienvenida = QLabel("""
         <h2 style="color:#293170; text-align:center;">Explora el universo</h2>
         <p style="color:#333333; text-align:center; font-size:20px; max-width:900px; margin:auto;">
