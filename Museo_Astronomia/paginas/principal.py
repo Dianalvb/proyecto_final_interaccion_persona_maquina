@@ -1,4 +1,7 @@
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QScrollArea, QFrame
+from PySide6.QtWidgets import (
+    QWidget, QLabel, QVBoxLayout, QScrollArea, QFrame, 
+    QPushButton
+)
 from PySide6.QtCore import Qt, QUrl, QTimer
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtMultimediaWidgets import QVideoWidget
@@ -6,7 +9,7 @@ from PySide6.QtGui import QPixmap
 import os
 
 
-def crear_pagina_principal(parent=None, base_path="."):
+def crear_pagina_principal(parent=None, base_path=".", callback_feedback=None):
     # Forzar el backend correcto en Windows (evita que se pierda el audio)
     os.environ["QT_MEDIA_BACKEND"] = "windows"
 
@@ -84,7 +87,7 @@ def crear_pagina_principal(parent=None, base_path="."):
     bienvenida.setStyleSheet("background-color: #f5f5f5; padding: 60px;")
     layout_scroll.addWidget(bienvenida)
 
-    # 🖼️ Imagen e historia del museo
+    # 🖼️ Imagen e historia del museo (CON SCROLL PROPIO)
     historia_frame = QFrame()
     historia_layout = QVBoxLayout(historia_frame)
     historia_layout.setContentsMargins(0, 0, 0, 0)
@@ -92,7 +95,7 @@ def crear_pagina_principal(parent=None, base_path="."):
     historia_layout.setAlignment(Qt.AlignCenter)
 
     # Ruta de la imagen
-    ruta_historia = os.path.join(os.path.dirname(__file__),"fuera.png")
+    ruta_historia = os.path.join(os.path.dirname(__file__), "fuera.png")
 
     if os.path.exists(ruta_historia):
         imagen_historia = QLabel()
@@ -104,22 +107,84 @@ def crear_pagina_principal(parent=None, base_path="."):
     else:
         print("⚠ No se encontró la imagen del museo:", ruta_historia)
 
-    # Texto descriptivo / historia
-    texto_historia = QLabel("""
+    # Texto descriptivo / historia CON SCROLL
+    texto_historia_frame = QFrame()
+    texto_historia_frame.setStyleSheet("background-color: #fafafa; border-top: 2px solid #ddd;")
+    texto_historia_layout = QVBoxLayout(texto_historia_frame)
+    
+    scroll_historia = QScrollArea()
+    scroll_historia.setWidgetResizable(True)
+    scroll_historia.setMaximumHeight(300)  # Altura máxima con scroll
+    scroll_historia.setStyleSheet("border: none; background-color: transparent;")
+    
+    texto_historia_contenido = QLabel("""
         <h3 style="color:#293170; text-align:center;">La historia detrás del museo</h3>
-        <p style="color:#333333; text-align:center; font-size:18px; max-width:900px; margin:auto;">
-            Nuestro museo, recientemente inaugurado, fue creado por la <b>Ingeniebra Diana</b>.  
+        <p style="color:#333333; text-align:justify; font-size:18px; max-width:900px; margin:auto; line-height:1.6;">
+            Nuestro museo, recientemente inaugurado, fue creado por la <b>Ingeniera Diana</b>.  
             Gracias a su creatividad y pasión por la astronomía, dio vida a este impresionante espacio 
-            dedicado a inspirar a nuevas generaciones de exploradores del universo. 🌌
-            <br><br><i>¡Ven a visitarlo y descubre todo lo que el cosmos tiene para ofrecer!</i>
+            dedicado a inspirar a nuevas generaciones de exploradores del universo. 🌌<br><br>
+            
+            Desde su infancia, la Ingeniera Diana mostró un profundo interés por las estrellas y los misterios 
+            del cosmos. Después de años de estudio e investigación, decidió compartir su conocimiento y 
+            pasión con el mundo, creando este espacio único donde la ciencia se encuentra con la inspiración.<br><br>
+            
+            El museo cuenta con exhibiciones interactivas, modelos a escala de planetas y sistemas solares, 
+            y una colección única de meteoritos auténticos. Cada sala está diseñada para transportar a los 
+            visitantes a través del vasto universo, desde nuestro sistema solar hasta las galaxias más lejanas.<br><br>
+            
+            Nuestra misión es hacer que la astronomía sea accesible para todos, desde niños curiosos hasta 
+            adultos que nunca perdieron su asombro por el cielo nocturno. Creemos que cada persona tiene 
+            derecho a maravillarse con el universo y entender nuestro lugar en él.<br><br>
+            
+            <i>"El universo no está hecho de átomos, está hecho de historias." - Margaret Atwood</i><br><br>
+            
+            ¡Ven a visitarnos y descubre todo lo que el cosmos tiene para ofrecer! Te garantizamos una 
+            experiencia que expandirá tus horizontes y despertará tu curiosidad científica.
         </p>
     """)
-    texto_historia.setWordWrap(True)
-    texto_historia.setAlignment(Qt.AlignCenter)
-    texto_historia.setStyleSheet("background-color: #fafafa; padding: 60px; border-top: 2px solid #ddd;")
+    texto_historia_contenido.setWordWrap(True)
+    texto_historia_contenido.setAlignment(Qt.AlignCenter)
+    texto_historia_contenido.setStyleSheet("padding: 40px;")
+    
+    scroll_historia.setWidget(texto_historia_contenido)
+    texto_historia_layout.addWidget(scroll_historia)
+    historia_layout.addWidget(texto_historia_frame)
 
-    historia_layout.addWidget(texto_historia)
     layout_scroll.addWidget(historia_frame)
+
+    # 💬 BOTÓN PARA FEEDBACK (que llevará a otra sección)
+    btn_feedback_frame = QFrame()
+    btn_feedback_frame.setStyleSheet("background-color: #ffffff; padding: 30px;")
+    btn_feedback_layout = QVBoxLayout(btn_feedback_frame)
+    btn_feedback_layout.setAlignment(Qt.AlignCenter)
+    
+    boton_feedback = QPushButton("💬 Feedback")
+    boton_feedback.setStyleSheet("""
+        QPushButton {
+            background-color: #8a2be2;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            min-width: 300px;
+        }
+        QPushButton:hover {
+            background-color: #7a1ad2;
+            transform: scale(1.05);
+        }
+        QPushButton:pressed {
+            background-color: #6a0ac2;
+        }
+    """)
+    boton_feedback.setCursor(Qt.PointingHandCursor)
+    btn_feedback_layout.addWidget(boton_feedback)
+    layout_scroll.addWidget(btn_feedback_frame)
+
+    # Conectar el botón de feedback al callback
+    if callback_feedback is not None:
+        boton_feedback.clicked.connect(callback_feedback)
 
     # 🌠 Sección adicional
     extra = QLabel("""
