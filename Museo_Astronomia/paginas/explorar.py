@@ -1,11 +1,8 @@
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGridLayout,  QPushButton
-from PySide6.QtCore import Qt
-from PySide6.QtCore import QPropertyAnimation, QEasingCurve, QRect
-from PySide6.QtGui import QIcon, QPixmap
-
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGridLayout, QPushButton, QGraphicsOpacityEffect
+from PySide6.QtCore import Qt, QPropertyAnimation
+from PySide6.QtGui import QIcon
 
 def crear_pagina_explorar(parent=None):
-    """Página para explorar el cosmos"""
     pagina = QWidget(parent)
     layout = QGridLayout(pagina)
 
@@ -29,77 +26,79 @@ def crear_pagina_explorar(parent=None):
         font-family: 'Segoe UI';
     """)
 
-    btn_memorama1= QPushButton(pagina)
-    btn_memorama1.setIcon(QIcon("Museo_Astronomia/reverse.jpg"))
-    btn_memorama1.move(100, 150)
-    btn_memorama1.setFixedSize(100,100)
-    btn_memorama1.flipped = False
-    layout.addWidget(btn_memorama1, 2,0,1,1, Qt.AlignCenter)
+    # ------------------------------
+    # FUNCIÓN QUE SÍ FUNCIONA
+    # ------------------------------
+    def animacion(boton, imagen_frente):
 
-    btn_par1= QPushButton(pagina)
-    btn_par1.setIcon(QIcon("Museo_Astronomia/reverse.jpg"))
-    btn_par1.move(100, 150)
-    btn_par1.setFixedSize(100,100)
-    btn_par1.flipped = False
-    layout.addWidget(btn_par1, 1,0,1,1, Qt.AlignCenter)
+        # Mantener animaciones vivas en el botón
+        boton.anim1 = None
+        boton.anim2 = None
 
+        efecto = QGraphicsOpacityEffect()
+        boton.setGraphicsEffect(efecto)
 
-    def al_oprimir():
-        inicio_memorama1 = btn_memorama1.geometry()
-        mid = QRect(inicio_memorama1.x() + inicio_memorama1.width() //2, inicio_memorama1.y(),0,inicio_memorama1.height())
-        
-        btn_memorama1.shrik = QPropertyAnimation(btn_memorama1, b"geometry")
-        btn_memorama1.shrik.setDuration(150)
-        btn_memorama1.shrik.setEasingCurve(QEasingCurve.InOutQuad)
-        btn_memorama1.shrik.setStartValue(inicio_memorama1)
-        btn_memorama1.shrik.setEndValue(mid)
+        boton.flipped = False
+        boton.front = imagen_frente
+        boton.back = "Museo_Astronomia/reverse.jpg"
 
-        btn_memorama1.expand = QPropertyAnimation(btn_memorama1, b"geometry")
-        btn_memorama1.expand.setDuration(150)
-        btn_memorama1.expand.setEasingCurve(QEasingCurve.InOutQuad)
-        btn_memorama1.expand.setStartValue(mid)
-        btn_memorama1.expand.setEndValue(inicio_memorama1)
+        # ---------------------------
+        # Animación 1: desaparecer
+        # ---------------------------
+        anim1 = QPropertyAnimation(efecto, b"opacity")
+        anim1.setDuration(200)
+        anim1.setStartValue(1)
+        anim1.setEndValue(0)
+
         def swap():
-            if not btn_memorama1.flipped:
-                btn_memorama1.setIcon(QIcon("Museo_Astronomia/museo_astronomía1.jpg"))
+            if not boton.flipped:
+                boton.setIcon(QIcon(boton.front))
             else:
-                btn_memorama1.setIcon(QIcon("Museo_Astronomia/reverse.jpg"))
-            btn_memorama1.flipped = not btn_memorama1.flipped
+                boton.setIcon(QIcon(boton.back))
+            boton.flipped = not boton.flipped
 
-        btn_memorama1.shrik.finished.connect(swap)
-        btn_memorama1.shrik.finished.connect(btn_memorama1.expand.start)
-        btn_memorama1.shrik.start()
-    btn_memorama1.clicked.connect(al_oprimir)
+        anim1.finished.connect(swap)
 
-    def al_oprimir_par1():
-        inicio_par1 = btn_par1.geometry()
-        mid = QRect(inicio_par1.x() + inicio_par1.width() //2, inicio_par1.y(),0,inicio_par1.height())
-        
-        btn_par1.shrik = QPropertyAnimation(btn_par1, b"geometry")
-        btn_par1.shrik.setDuration(150)
-        btn_par1.shrik.setEasingCurve(QEasingCurve.InOutQuad)
-        btn_par1.shrik.setStartValue(inicio_par1)
-        btn_par1.shrik.setEndValue(mid)
+        # ---------------------------
+        # Animación 2: aparecer
+        # ---------------------------
+        anim2 = QPropertyAnimation(efecto, b"opacity")
+        anim2.setDuration(200)
+        anim2.setStartValue(0)
+        anim2.setEndValue(1)
 
-        btn_par1.expand = QPropertyAnimation(btn_par1, b"geometry")
-        btn_par1.expand.setDuration(150)
-        btn_par1.expand.setEasingCurve(QEasingCurve.InOutQuad)
-        btn_par1.expand.setStartValue(mid)
-        btn_par1.expand.setEndValue(inicio_par1)
-        def swap2():
-            if not btn_par1.flipped:
-                btn_par1.setIcon(QIcon("Museo_Astronomia/museo_astronomía1.jpg"))
-            else:
-                btn_par1.setIcon(QIcon("Museo_Astronomia/reverse.jpg"))
-            btn_par1.flipped = not btn_par1.flipped
+        anim1.finished.connect(anim2.start)
 
-        btn_par1.shrik.finished.connect(swap2)
-        btn_par1.shrik.finished.connect(btn_par1.expand.start)
-        btn_par1.shrik.start()
-    btn_par1.clicked.connect(al_oprimir_par1)
+        # Guardarlas para que no se eliminen
+        boton.anim1 = anim1
+        boton.anim2 = anim2
 
+        boton.clicked.connect(anim1.start)
 
-    layout.addWidget(titulo,0,0,1,1,Qt.AlignCenter)
-    layout.addWidget(descripcion, 0,1,0,1,Qt.AlignCenter)
-    
+    # --------------------------
+    # Crear tarjetas
+    # --------------------------
+
+    def crear_boton():
+        boton = QPushButton()
+        boton.setFixedSize(120, 120)
+        boton.setIcon(QIcon("Museo_Astronomia/reverse.jpg"))
+        boton.setIconSize(boton.size())  # IMPORTANTE
+        return boton
+
+    btn1 = crear_boton()
+    animacion(btn1, "Museo_Astronomia/museo_astronomía1.jpg")
+    layout.addWidget(btn1, 2, 0)
+
+    btn2 = crear_boton()
+    animacion(btn2, "Museo_Astronomia/museo_astronomía1.jpg")
+    layout.addWidget(btn2, 2, 1)
+
+    btn3 = crear_boton()
+    animacion(btn3, "Museo_Astronomia/museo_astronomía1.jpg")
+    layout.addWidget(btn3, 2, 2)
+
+    layout.addWidget(titulo, 0, 0, 1, 3)
+    layout.addWidget(descripcion, 1, 0, 1, 3)
+
     return pagina
