@@ -26,12 +26,10 @@ def crear_pagina_explorar(parent=None):
         font-family: 'Segoe UI';
     """)
 
-    # ------------------------------
-    # FUNCIÓN QUE SÍ FUNCIONA
-    # ------------------------------
+    
     def animacion(boton, imagen_frente):
 
-        # Mantener animaciones vivas en el botón
+        
         boton.anim1 = None
         boton.anim2 = None
 
@@ -42,9 +40,7 @@ def crear_pagina_explorar(parent=None):
         boton.front = imagen_frente
         boton.back = "Museo_Astronomia/reverse.jpg"
 
-        # ---------------------------
-        # Animación 1: desaparecer
-        # ---------------------------
+        
         anim1 = QPropertyAnimation(efecto, b"opacity")
         anim1.setDuration(200)
         anim1.setStartValue(1)
@@ -59,9 +55,7 @@ def crear_pagina_explorar(parent=None):
 
         anim1.finished.connect(swap)
 
-        # ---------------------------
-        # Animación 2: aparecer
-        # ---------------------------
+        
         anim2 = QPropertyAnimation(efecto, b"opacity")
         anim2.setDuration(200)
         anim2.setStartValue(0)
@@ -69,21 +63,19 @@ def crear_pagina_explorar(parent=None):
 
         anim1.finished.connect(anim2.start)
 
-        # Guardarlas para que no se eliminen
+        
         boton.anim1 = anim1
         boton.anim2 = anim2
 
         boton.clicked.connect(anim1.start)
 
-    # --------------------------
-    # Crear tarjetas
-    # --------------------------
+    
 
     def crear_boton():
         boton = QPushButton()
         boton.setFixedSize(120, 120)
         boton.setIcon(QIcon("Museo_Astronomia/reverse.jpg"))
-        boton.setIconSize(boton.size())  # IMPORTANTE
+        boton.setIconSize(boton.size())  
         return boton
 
     btn1 = crear_boton()
