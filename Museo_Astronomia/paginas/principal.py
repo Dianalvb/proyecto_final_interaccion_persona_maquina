@@ -92,7 +92,7 @@ def crear_pagina_principal(parent=None, base_path="."):
     historia_layout.setAlignment(Qt.AlignCenter)
 
     # Ruta de la imagen
-    ruta_historia = os.path.join(os.path.dirname(__file__), "..", "imagenes", "fuera.png")
+    ruta_historia = os.path.join(os.path.dirname(__file__),"fuera.png")
 
     if os.path.exists(ruta_historia):
         imagen_historia = QLabel()
