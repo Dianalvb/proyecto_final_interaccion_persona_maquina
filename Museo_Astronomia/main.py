@@ -12,6 +12,7 @@ from PySide6.QtGui import QFont, QPixmap
 from paginas.principal import crear_pagina_principal
 from paginas.explorar import crear_pagina_explorar
 from paginas.galeria import crear_pagina_galeria
+from paginas.tienda import crear_pagina_tienda
 print("⚙️ Ejecutando versión actualizada de main.py")
 
 class MainWindow(QMainWindow):
@@ -92,7 +93,8 @@ class MainWindow(QMainWindow):
         self.paginas = {
             "Inicio": crear_pagina_principal(self),
             "Explorar": crear_pagina_explorar(self),
-            "Galeria": crear_pagina_galeria(self)
+            "Galeria": crear_pagina_galeria(self),
+            "Tienda": crear_pagina_tienda(self)
         }
 
         for pagina in self.paginas.values():
@@ -139,7 +141,7 @@ class MainWindow(QMainWindow):
 
         # 🔹 Botones de navegación
         self.botones_nav = {}
-        secciones = ["Inicio", "Explorar", "Galeria"]
+        secciones = ["Inicio", "Explorar", "Galeria", "Tienda"]
 
         for seccion in secciones:
             boton = QPushButton(seccion)
