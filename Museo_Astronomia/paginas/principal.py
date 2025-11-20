@@ -6,6 +6,7 @@ from PySide6.QtCore import Qt, QUrl, QTimer
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtMultimediaWidgets import QVideoWidget
 from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QDesktopServices
 import os
 
 
@@ -26,7 +27,7 @@ def crear_pagina_principal(parent=None, base_path=".", callback_feedback=None):
     contenedor_scroll = QWidget()
     layout_scroll = QVBoxLayout(contenedor_scroll)
     layout_scroll.setContentsMargins(0, 0, 0, 0)
-    layout_scroll.setSpacing(0)
+    layout_scroll.setSpacing(0)    
 
     # 🪐 Banner superior con video
     banner = QFrame()
@@ -36,6 +37,7 @@ def crear_pagina_principal(parent=None, base_path=".", callback_feedback=None):
     layout_banner = QVBoxLayout(banner)
     layout_banner.setContentsMargins(0, 0, 0, 0)
     layout_banner.setSpacing(0)
+
 
     # 🎞️ Video local
     video_widget = QVideoWidget()
@@ -181,6 +183,12 @@ def crear_pagina_principal(parent=None, base_path=".", callback_feedback=None):
     boton_feedback.setCursor(Qt.PointingHandCursor)
     btn_feedback_layout.addWidget(boton_feedback)
     layout_scroll.addWidget(btn_feedback_frame)
+
+    def abrir_enlace():
+        url = QUrl("https://docs.google.com/forms/d/e/1FAIpQLScvh_vByIbl4OFuqrrPedc_D3cmTa_5y1FlACG1wnzfaASyHQ/viewform?usp=header")
+        QDesktopServices.openUrl(url)
+    boton_feedback.clicked.connect(abrir_enlace)
+
 
     # Conectar el botón de feedback al callback
     if callback_feedback is not None:
