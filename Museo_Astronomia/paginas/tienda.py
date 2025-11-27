@@ -14,9 +14,7 @@ def crear_pagina_tienda(parent=None):
     layout_principal = QVBoxLayout(pagina)
     layout_principal.setContentsMargins(0, 0, 0, 0)
 
-    # ============================================================
-    #   SCROLL
-    # ============================================================
+    
     scroll = QScrollArea()
     scroll.setWidgetResizable(True)
     scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -25,9 +23,7 @@ def crear_pagina_tienda(parent=None):
     contenido = QVBoxLayout(contenedor)
     contenido.setContentsMargins(0, 0, 0, 0)
 
-    # ============================================================
-    #   PORTADA
-    # ============================================================
+    
     portada = QLabel()
     ruta_portada = os.path.join(os.path.dirname(__file__), "tienda_portada.jpg")
     px = QPixmap(ruta_portada)
@@ -40,9 +36,7 @@ def crear_pagina_tienda(parent=None):
 
     contenido.addWidget(portada)
 
-    # ============================================================
-    #   TÍTULO + DESCRIPCIÓN
-    # ============================================================
+    
     titulo = QLabel("Online Boutique – Museo de Astronomía")
     titulo.setStyleSheet("""
         color: #2e2e2e;
@@ -71,24 +65,22 @@ def crear_pagina_tienda(parent=None):
     contenido.addWidget(titulo)
     contenido.addWidget(descripcion)
 
-    # ============================================================
-    #   GRID DE PRODUCTOS (ACTUALIZADO)
-    # ============================================================
+    
     grid = QGridLayout()
     grid.setContentsMargins(40, 30, 40, 10)
     grid.setHorizontalSpacing(35)
     grid.setVerticalSpacing(35)
 
     productos = [
-        ("telescopio.jpg", "Telescopio Galileo – Réplica Decorativa"),
-        ("meteorito.jpg", "Meteorito Real (Fragmento pequeño)"),
-        ("lampara_nebulosa.jpg", "Lámpara Nebulosa RGB"),
+        ("replicaGalileo.jpg", "Telescopio Galileo – Réplica Decorativa"),
+        ("meteoritoReal.webp", "Meteorito Real (Fragmento pequeño)"),
+        ("LamparaRGB.jpg", "Lámpara Nebulosa RGB"),
         ("atlas.jpg", "Libro: Atlas de las Constelaciones"),
-        ("puzzle.jpg", "Puzzle Vía Láctea – 1000 Piezas"),
-        ("esfera_led.jpg", "Esfera del Sistema Solar – LED"),
-        ("poster.jpg", "Póster Vintage – Eclipse Solar 1900"),
-        ("marte_cubo.jpg", "Cubo de Marte – Fotos NASA"),
-        ("astronauta.jpg", "Figura Astronauta – Edición Museo"),
+        ("puzzleVL.jpg", "Puzzle Vía Láctea – 1000 Piezas"),
+        ("esferaSSLED.jpg", "Esfera del Sistema Solar – LED"),
+        ("poster vintage ES.webp", "Póster Vintage – Eclipse Solar 1900"),
+        ("cuboMarte.jpg", "Cubo de Marte – Fotos NASA"),
+        ("FigAtronauta.jpg", "Figura Astronauta – Edición Museo"),
     ]
 
     fila = 0
@@ -155,9 +147,7 @@ def crear_pagina_tienda(parent=None):
 
     contenido.addLayout(grid)
 
-    # ============================================================
-    #   TARJETA DE COMPRA (FORMULARIO)
-    # ============================================================
+   
     card = QFrame()
     card.setStyleSheet("background-color: white; border-radius: 14px;")
     card_layout = QFormLayout(card)
