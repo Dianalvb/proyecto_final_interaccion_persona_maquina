@@ -25,7 +25,7 @@ def crear_pagina_tienda(parent=None):
 
     
     portada = QLabel()
-    ruta_portada = os.path.join(os.path.dirname(__file__), "tienda_portada.jpg")
+    ruta_portada = os.path.join(os.path.dirname(__file__), "logoahorasi.png")
     px = QPixmap(ruta_portada)
 
     if not px.isNull():
