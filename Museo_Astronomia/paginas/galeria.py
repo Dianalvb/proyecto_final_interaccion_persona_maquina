@@ -1,90 +1,83 @@
 from PySide6.QtWidgets import (
     QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton,
-    QStackedWidget, QGraphicsOpacityEffect
+    QStackedWidget, QScrollArea, QGraphicsOpacityEffect
 )
-from PySide6.QtCore import Qt, QSize, QPropertyAnimation
+from PySide6.QtCore import Qt, QPropertyAnimation
 from PySide6.QtGui import QPixmap
 
 
 def crear_pagina_galeria(parent=None):
+    # --------- CONTENEDOR PRINCIPAL ---------
     pagina = QWidget(parent)
+    layout_pagina = QVBoxLayout(pagina)
 
-    # 🌌 Fondo espacial suave (imagen en carpeta assets)
     pagina.setStyleSheet("""
         QWidget {
-            background-image: url('Museo_Astronomia/fondo_espacio.jpg');
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            background-size: cover;
+            background: qlineargradient(
+                spread:pad, x1:0, y1:0, x2:0, y2:1,
+                stop:0 #f9f9f9,
+                stop:1 #ececec
+            );
         }
     """)
 
-    layout_principal = QVBoxLayout(pagina)
+    # --------- SCROLL GENERAL ---------
+    scroll = QScrollArea()
+    scroll.setWidgetResizable(True)
+    scroll.setStyleSheet("background: transparent; border: none;")
 
-    # 🔭 TÍTULO
+    contenedor = QWidget()
+    layout_contenedor = QVBoxLayout(contenedor)
+
+    # --------- TÍTULO PRINCIPAL ---------
     titulo = QLabel("Conoce el Cosmos")
     titulo.setAlignment(Qt.AlignCenter)
     titulo.setStyleSheet("""
-        color: #ffffff;
-        font-size: 40px;
+        color: #2b2b2b;
+        font-size: 48px;
+        font-family: 'Times New Roman';
         font-weight: bold;
-        text-shadow: 2px 2px 6px black;
+        margin-top: 20px;
     """)
+    layout_contenedor.addWidget(titulo)
 
-    # 🔹 Información que cambiará según la imagen seleccionada
+    # --------- TEXTO PRINCIPAL A LA IZQUIERDA ---------
     texto_info = QLabel("")
-    texto_info.setAlignment(Qt.AlignTop | Qt.AlignLeft)
     texto_info.setWordWrap(True)
+    texto_info.setAlignment(Qt.AlignTop)
     texto_info.setStyleSheet("""
-        color: #e6e6e6;
-        font-size: 18px;
-        padding: 15px;
-        background-color: rgba(0,0,0,0.45);
-        border-radius: 12px;
+        color: #333333;
+        font-size: 22px;
+        line-height: 1.4em;
+        font-family: 'Times New Roman';
+        padding-right: 15px;
     """)
 
-    # 🔭 Lista de imágenes + textos largos explicativos
+    # --------- TEXTO MUSEOGRÁFICO ÚNICO ---------
+    texto_museo = (
+        "El universo es un espacio vasto y complejo que alberga fenómenos extraordinarios. "
+        "Las nebulosas, galaxias espirales y restos de supernovas son algunos de los elementos "
+        "que conforman la estructura cósmica que observamos hoy en día. Cada imagen que verás "
+        "en esta galería representa un fragmento de la inmensidad del cosmos.\n\n"
+
+        "Las nebulosas, compuestas por gas y polvo interestelar, son las cunas donde nacen "
+        "nuevas estrellas. Por otro lado, las galaxias espirales muestran brazos llenos de vida "
+        "y actividad estelar. Los restos de supernovas, como la Nebulosa del Cangrejo, revelan "
+        "los procesos explosivos que forjan los elementos del universo. Observar estas imágenes "
+        "nos permite comprender mejor nuestro origen y el funcionamiento de la naturaleza cósmica."
+    )
+
+    # --------- IMÁGENES ---------
     imagenes = [
-        (
-            "Museo_Astronomia/museo_astronomía1.jpg",
-            """🌌 Nebulosa de Orión
-            
-            Una de las regiones de formación estelar más brillantes del cielo nocturno.
-            Contiene miles de estrellas jóvenes, nubes de gas y polvo que revelan la 
-            actividad dinámica del universo. Es visible incluso a simple vista desde 
-            cielos oscuros."""
-        ),
-        (
-            "Museo_Astronomia/museo_astronomia2.jpg",
-            """🌠 Galaxias Espirales
-            
-            Estructuras gigantes compuestas por miles de millones de estrellas.
-            Sus brazos espirales albergan nubes moleculares y sistemas planetarios en
-            constante evolución. Nuestra galaxia, la Vía Láctea, pertenece a esta clase."""
-        ),
-        (
-            "Museo_Astronomia/museo_astronomia3.jpg",
-            """✨ Nebulosa del Cangrejo
-            
-            Resultado de una explosión de supernova observada en el año 1054. 
-            En su interior, un púlsar emite radiación intensa, iluminando la nube 
-            que aún se expande con gran velocidad."""
-        ),
-        (
-            "Museo_Astronomia/museo_astronomia3.jpg",
-            """🌌 Universo Profundo
-            
-            Imágenes capturadas por telescopios espaciales revelan cúmulos, 
-            supercúmulos y galaxias que se encuentran a millones de años luz 
-            de distancia, permitiendo estudiar la historia cosmológica."""
-        ),
+        "Museo_Astronomia/museo_astronomía1.jpg",
+        "Museo_Astronomia/museo_astronomia2.jpg",
+        "Museo_Astronomia/museo_astronomia3.jpg",
+        "Museo_Astronomia/museo_astronomia3.jpg"
     ]
 
-    # 🌟 Carrusel lateral
+    # --------- CARRUSEL ---------
     carrusel = QStackedWidget()
 
-    # Efecto de transición (desvanecido)
     opacity = QGraphicsOpacityEffect()
     carrusel.setGraphicsEffect(opacity)
 
@@ -93,60 +86,93 @@ def crear_pagina_galeria(parent=None):
     anim.setStartValue(0.0)
     anim.setEndValue(1.0)
 
-    # Crear imágenes
-    labels = []
-    for ruta, texto in imagenes:
+    def estilizar_imagen(ruta):
+        pixmap = QPixmap(ruta).scaled(
+            560, 360,
+            Qt.IgnoreAspectRatio,
+            Qt.SmoothTransformation
+        )
+        return pixmap
+
+    for ruta in imagenes:
         lbl = QLabel()
-        lbl.setPixmap(QPixmap(ruta).scaled(450, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        lbl.setPixmap(estilizar_imagen(ruta))
         lbl.setAlignment(Qt.AlignCenter)
-        lbl.info_text = texto
-
-        # Al hacer clic en la imagen → actualizar texto
-        lbl.mousePressEvent = lambda _, l=lbl: texto_info.setText(l.info_text)
-
-        labels.append(lbl)
+        lbl.setStyleSheet("""
+            QLabel {
+                border-radius: 10px;
+                border: 3px solid #d0d0d0;
+            }
+        """)
         carrusel.addWidget(lbl)
 
-    # Botones flecha
+    # --------- ACTUALIZAR TEXTO ---------
+    def actualizar_texto():
+        texto_info.setText(texto_museo)
+        anim.start()
+
+    actualizar_texto()
+
+    # --------- BOTONES DE CARRUSEL ---------
     btn_left = QPushButton("⟵")
-    btn_left.setFixedSize(50, 50)
-    btn_left.setStyleSheet("background-color: rgba(0,0,0,0.5); color: white; font-size: 20px; border-radius: 10px;")
-
     btn_right = QPushButton("⟶")
-    btn_right.setFixedSize(50, 50)
-    btn_right.setStyleSheet("background-color: rgba(0,0,0,0.5); color: white; font-size: 20px; border-radius: 10px;")
 
-    # Funciones de navegación
-    def ir_izquierda():
-        carrusel.setCurrentIndex((carrusel.currentIndex() - 1) % carrusel.count())
-        texto_info.setText("")  # Espera clic
-        anim.start()
+    for b in (btn_left, btn_right):
+        b.setFixedSize(60, 52)
+        b.setStyleSheet("""
+            QPushButton {
+                background-color: #e4e4e4;
+                color: #333;
+                font-size: 22px;
+                border-radius: 10px;
+                font-family: 'Times New Roman';
+            }
+            QPushButton:hover {
+                background-color: #d2d2d2;
+            }
+        """)
 
-    def ir_derecha():
-        carrusel.setCurrentIndex((carrusel.currentIndex() + 1) % carrusel.count())
-        texto_info.setText("")
-        anim.start()
+    btn_left.clicked.connect(lambda: (
+        carrusel.setCurrentIndex((carrusel.currentIndex() - 1) % carrusel.count()),
+        actualizar_texto()
+    ))
+    btn_right.clicked.connect(lambda: (
+        carrusel.setCurrentIndex((carrusel.currentIndex() + 1) % carrusel.count()),
+        actualizar_texto()
+    ))
 
-    btn_left.clicked.connect(ir_izquierda)
-    btn_right.clicked.connect(ir_derecha)
-
-    # Layout lateral del carrusel
+    # --------- LAYOUT CARRUSEL DERECHA ---------
     layout_carrusel = QVBoxLayout()
+    layout_botones = QHBoxLayout()
+    layout_botones.addWidget(btn_left)
+    layout_botones.addWidget(btn_right)
+
     layout_carrusel.addWidget(carrusel)
+    layout_carrusel.addLayout(layout_botones)
 
-    botones = QHBoxLayout()
-    botones.addWidget(btn_left)
-    botones.addWidget(btn_right)
-    layout_carrusel.addLayout(botones)
-
-    # Layout horizontal: Carrusel | Texto
+    # --------- LAYOUT IZQ (TEXTO) — DER (CARRUSEL) ---------
     layout_horizontal = QHBoxLayout()
-    layout_horizontal.addLayout(layout_carrusel, 40)
     layout_horizontal.addWidget(texto_info, 60)
+    layout_horizontal.addLayout(layout_carrusel, 40)
 
-    # Armado final
-    layout_principal.addWidget(titulo)
-    layout_principal.addLayout(layout_horizontal)
-    layout_principal.addStretch()
+    layout_contenedor.addLayout(layout_horizontal)
+
+    # --------- INFORMACIÓN ADICIONAL ---------
+    info_extra = QLabel("""
+    <h2 style='color:#2f2f2f; font-size:32px; font-family:Times New Roman;'>
+        Información adicional
+    </h2>
+    <p style='color:#444; font-size:20px; font-family:Times New Roman;'>
+        La astronomía moderna utiliza telescopios espaciales, espectroscopía y modelado
+        computacional para estudiar objetos situados a millones de años luz. Esta galería
+        es una invitación a reflexionar sobre la grandeza del universo y nuestro lugar en él.
+    </p>
+    """)
+    info_extra.setWordWrap(True)
+    layout_contenedor.addSpacing(40)
+    layout_contenedor.addWidget(info_extra)
+
+    scroll.setWidget(contenedor)
+    layout_pagina.addWidget(scroll)
 
     return pagina
