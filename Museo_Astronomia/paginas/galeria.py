@@ -1,102 +1,152 @@
-from PySide6.QtWidgets import( QWidget, QLabel, QVBoxLayout, QGroupBox, QPushButton, QGridLayout)
-from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtWidgets import (
+    QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton,
+    QStackedWidget, QGraphicsOpacityEffect
+)
+from PySide6.QtCore import Qt, QSize, QPropertyAnimation
+from PySide6.QtGui import QPixmap
 
 
 def crear_pagina_galeria(parent=None):
-    """Página de galería de imágenes astronómicas"""
     pagina = QWidget(parent)
-    layout = QVBoxLayout(pagina)
 
-    titulo = QLabel("Galería de Imágenes Astronómicas")
+    # 🌌 Fondo espacial suave (imagen en carpeta assets)
+    pagina.setStyleSheet("""
+        QWidget {
+            background-image: url('Museo_Astronomia/fondo_espacio.jpg');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+    """)
+
+    layout_principal = QVBoxLayout(pagina)
+
+    # 🔭 TÍTULO
+    titulo = QLabel("Conoce el Cosmos")
     titulo.setAlignment(Qt.AlignCenter)
     titulo.setStyleSheet("""
         color: #ffffff;
-        font-size: 28px;
+        font-size: 40px;
         font-weight: bold;
-        font-family: 'Segoe UI';
+        text-shadow: 2px 2px 6px black;
     """)
-    
-    info_label = QLabel("")
-    info_label.setAlignment(Qt.AlignCenter)
-    info_label.setStyleSheet("""
-    color: #ffffff;
-    font-size: 16px;
-    font-family: 'Segoe UI';
-""")
 
-    #columna 1
-    boxA= QGroupBox("coleccion 1")
-    vA = QVBoxLayout(boxA)
-    vA.setSpacing(8)
-
-    btn_imagen1 = QPushButton()
-    btn_imagen1.setIcon(QIcon("Museo_Astronomia/museo_astronomía1.jpg"))
-    btn_imagen1.setIconSize(QSize(240, 160))  # ajusta al tamaño que quieras
-    btn_imagen1.setFixedSize(260, 180)
-
-    vA.addWidget(btn_imagen1)
-
-    #columna 2
-    boxB= QGroupBox("coleccion 2")
-    vB = QVBoxLayout(boxB)
-    vB.setSpacing(8)
-    btn_imagen2 = QPushButton()
-    btn_imagen2.setIcon(QIcon("Museo_Astronomia/museo_astronomia2.jpg"))
-    btn_imagen2.setIconSize(QSize(240, 160))
-    btn_imagen2.setFixedSize(260, 180)
-    
-    vB.addWidget(btn_imagen2)
-
-    #columna 3
-    boxC= QGroupBox("coleccion 3")
-    vC = QVBoxLayout(boxC)
-    vC.setSpacing(8)
-    btn_imagen3 = QPushButton()
-    btn_imagen3.setIcon(QIcon("Museo_Astronomia/museo_astronomia3.jpg"))
-    btn_imagen3.setIconSize(QSize(240, 160))
-    btn_imagen3.setFixedSize(260, 180)
-    
-    vC.addWidget(btn_imagen3)
-
-    #Columna 4
-    boxD = QGroupBox("cOLEccion 4")
-    vD = QVBoxLayout(boxD)
-    vD.setSpacing(8)
-    btn_imagen4 = QPushButton()
-    btn_imagen4.setIcon(QIcon("Museo_Astronomia/museo_astronomia3.jpg"))
-    btn_imagen4.setIconSize(QSize(240, 160))
-    btn_imagen4.setFixedSize(260, 180)
-    
-    vD.addWidget(btn_imagen4)
-
-    grid = QGridLayout()
-    grid.addWidget(boxA, 0, 0)
-    grid.addWidget(boxB, 0, 1)
-    grid.addWidget(boxC, 1, 0)
-    grid.addWidget(boxD, 1, 1)
-    
-    btn_imagen1.clicked.connect(lambda: info_label.setText("Imagenes del sistema solar"))
-    btn_imagen2.clicked.connect(lambda: info_label.setText("Fotografías de la galaxia :p"))
-    btn_imagen3.clicked.connect(lambda: info_label.setText("Fotografías:p"))
-    btn_imagen4.clicked.connect(lambda: info_label.setText("Fotografías"))
-
-    descripcion = QLabel(
-        "Explora una colección impresionante de imágenes del universo, desde nebulosas hasta galaxias lejanas."
-    )
-    descripcion.setAlignment(Qt.AlignCenter)
-    descripcion.setWordWrap(True)
-    descripcion.setStyleSheet("""
-        color: #cccccc;
+    # 🔹 Información que cambiará según la imagen seleccionada
+    texto_info = QLabel("")
+    texto_info.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+    texto_info.setWordWrap(True)
+    texto_info.setStyleSheet("""
+        color: #e6e6e6;
         font-size: 18px;
-        font-family: 'Segoe UI';
+        padding: 15px;
+        background-color: rgba(0,0,0,0.45);
+        border-radius: 12px;
     """)
 
-    layout.addStretch()
-    layout.addWidget(titulo)
-    layout.addWidget(descripcion)
-    layout.addLayout(grid)
-    layout.addWidget(info_label)
-    layout.addStretch()
+    # 🔭 Lista de imágenes + textos largos explicativos
+    imagenes = [
+        (
+            "Museo_Astronomia/museo_astronomía1.jpg",
+            """🌌 Nebulosa de Orión
+            
+            Una de las regiones de formación estelar más brillantes del cielo nocturno.
+            Contiene miles de estrellas jóvenes, nubes de gas y polvo que revelan la 
+            actividad dinámica del universo. Es visible incluso a simple vista desde 
+            cielos oscuros."""
+        ),
+        (
+            "Museo_Astronomia/museo_astronomia2.jpg",
+            """🌠 Galaxias Espirales
+            
+            Estructuras gigantes compuestas por miles de millones de estrellas.
+            Sus brazos espirales albergan nubes moleculares y sistemas planetarios en
+            constante evolución. Nuestra galaxia, la Vía Láctea, pertenece a esta clase."""
+        ),
+        (
+            "Museo_Astronomia/museo_astronomia3.jpg",
+            """✨ Nebulosa del Cangrejo
+            
+            Resultado de una explosión de supernova observada en el año 1054. 
+            En su interior, un púlsar emite radiación intensa, iluminando la nube 
+            que aún se expande con gran velocidad."""
+        ),
+        (
+            "Museo_Astronomia/museo_astronomia3.jpg",
+            """🌌 Universo Profundo
+            
+            Imágenes capturadas por telescopios espaciales revelan cúmulos, 
+            supercúmulos y galaxias que se encuentran a millones de años luz 
+            de distancia, permitiendo estudiar la historia cosmológica."""
+        ),
+    ]
+
+    # 🌟 Carrusel lateral
+    carrusel = QStackedWidget()
+
+    # Efecto de transición (desvanecido)
+    opacity = QGraphicsOpacityEffect()
+    carrusel.setGraphicsEffect(opacity)
+
+    anim = QPropertyAnimation(opacity, b"opacity")
+    anim.setDuration(300)
+    anim.setStartValue(0.0)
+    anim.setEndValue(1.0)
+
+    # Crear imágenes
+    labels = []
+    for ruta, texto in imagenes:
+        lbl = QLabel()
+        lbl.setPixmap(QPixmap(ruta).scaled(450, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        lbl.setAlignment(Qt.AlignCenter)
+        lbl.info_text = texto
+
+        # Al hacer clic en la imagen → actualizar texto
+        lbl.mousePressEvent = lambda _, l=lbl: texto_info.setText(l.info_text)
+
+        labels.append(lbl)
+        carrusel.addWidget(lbl)
+
+    # Botones flecha
+    btn_left = QPushButton("⟵")
+    btn_left.setFixedSize(50, 50)
+    btn_left.setStyleSheet("background-color: rgba(0,0,0,0.5); color: white; font-size: 20px; border-radius: 10px;")
+
+    btn_right = QPushButton("⟶")
+    btn_right.setFixedSize(50, 50)
+    btn_right.setStyleSheet("background-color: rgba(0,0,0,0.5); color: white; font-size: 20px; border-radius: 10px;")
+
+    # Funciones de navegación
+    def ir_izquierda():
+        carrusel.setCurrentIndex((carrusel.currentIndex() - 1) % carrusel.count())
+        texto_info.setText("")  # Espera clic
+        anim.start()
+
+    def ir_derecha():
+        carrusel.setCurrentIndex((carrusel.currentIndex() + 1) % carrusel.count())
+        texto_info.setText("")
+        anim.start()
+
+    btn_left.clicked.connect(ir_izquierda)
+    btn_right.clicked.connect(ir_derecha)
+
+    # Layout lateral del carrusel
+    layout_carrusel = QVBoxLayout()
+    layout_carrusel.addWidget(carrusel)
+
+    botones = QHBoxLayout()
+    botones.addWidget(btn_left)
+    botones.addWidget(btn_right)
+    layout_carrusel.addLayout(botones)
+
+    # Layout horizontal: Carrusel | Texto
+    layout_horizontal = QHBoxLayout()
+    layout_horizontal.addLayout(layout_carrusel, 40)
+    layout_horizontal.addWidget(texto_info, 60)
+
+    # Armado final
+    layout_principal.addWidget(titulo)
+    layout_principal.addLayout(layout_horizontal)
+    layout_principal.addStretch()
 
     return pagina
