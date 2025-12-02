@@ -5,15 +5,18 @@ from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout,
     QLabel, QStackedWidget, QHBoxLayout, QPushButton, QFrame
 )
-from PySide6.QtCore import Qt, QUrl
-from PySide6.QtGui import QFont, QPixmap
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QFont, QPixmap, QIcon
 
 # Importar páginas
 from paginas.principal import crear_pagina_principal
 from paginas.explorar import crear_pagina_explorar
 from paginas.galeria import crear_pagina_galeria
 from paginas.tienda import crear_pagina_tienda
+from paginas.tickets import crear_pagina_tickets     # ← NUEVO
+
 print("⚙️ Ejecutando versión actualizada de main.py")
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -94,7 +97,8 @@ class MainWindow(QMainWindow):
             "Inicio": crear_pagina_principal(self),
             "Explorar": crear_pagina_explorar(self),
             "Galeria": crear_pagina_galeria(self),
-            "Tienda": crear_pagina_tienda(self)
+            "Tienda": crear_pagina_tienda(self),
+            "Tickets": crear_pagina_tickets(self)      # ← NUEVA PÁGINA
         }
 
         for pagina in self.paginas.values():
@@ -108,38 +112,39 @@ class MainWindow(QMainWindow):
         nav_frame.setObjectName("nav_bar")
         nav_frame.setFixedHeight(80)
 
-        layout = QHBoxLayout()
-        layout.setContentsMargins(20, 0, 20, 0)
-        layout.setSpacing(0)
+        # Layout dividido en 3 columnas
+        layout_general = QHBoxLayout(nav_frame)
+        layout_general.setContentsMargins(20, 0, 20, 0)
+        layout_general.setSpacing(0)
 
-        # 🔹 Logo + texto
-        logo_container = QWidget()
-        logo_layout = QHBoxLayout(logo_container)
-        logo_layout.setContentsMargins(0, 0, 0, 0)
-        logo_layout.setSpacing(10)
+        # ============================================
+        #              ZONA IZQUIERDA (LOGO)
+        # ============================================
+        zona_izquierda = QHBoxLayout()
+        zona_izquierda.setAlignment(Qt.AlignLeft)
 
         logo_icono = QLabel()
-
         ruta_logo = os.path.join(os.path.dirname(__file__), "logo.png")
-        print("Ruta logo:", ruta_logo, "Existe:", os.path.exists(ruta_logo))
+        pix_logo = QPixmap(ruta_logo)
 
-        pixmap = QPixmap(ruta_logo)
-        if not pixmap.isNull():
-            logo_icono.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        if not pix_logo.isNull():
+            logo_icono.setPixmap(pix_logo.scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         else:
-            logo_icono.setText("⚠️?")
-            logo_icono.setStyleSheet("font-size: 28px; color: #70155F;")
+            logo_icono.setText("⚠️")
+            logo_icono.setStyleSheet("font-size: 25px; color:#70155F;")
 
         logo_texto = QLabel("Horizontes Estelares")
         logo_texto.setObjectName("logo_texto")
 
-        logo_layout.addWidget(logo_icono)
-        logo_layout.addWidget(logo_texto)
-        layout.addWidget(logo_container)
+        zona_izquierda.addWidget(logo_icono)
+        zona_izquierda.addWidget(logo_texto)
 
-        layout.addStretch()
+        # ============================================
+        #              ZONA CENTRAL (MENÚ)
+        # ============================================
+        zona_centro = QHBoxLayout()
+        zona_centro.setAlignment(Qt.AlignCenter)
 
-        # 🔹 Botones de navegación
         self.botones_nav = {}
         secciones = ["Inicio", "Explorar", "Galeria", "Tienda"]
 
@@ -147,19 +152,56 @@ class MainWindow(QMainWindow):
             boton = QPushButton(seccion)
             boton.setObjectName("nav_button")
             boton.setFixedHeight(80)
-
-            # ✅ Conexión segura con partial (evita error del 'checked')
             boton.clicked.connect(partial(self.mostrar_pagina, seccion))
-
-            layout.addWidget(boton)
+            zona_centro.addWidget(boton)
             self.botones_nav[seccion] = boton
 
-        layout.addStretch()
-        nav_frame.setLayout(layout)
+        # ============================================
+        #          ZONA DERECHA (TICKETS)
+        # ============================================
+        zona_derecha = QHBoxLayout()
+        zona_derecha.setAlignment(Qt.AlignRight)
+
+        boton_tickets = QPushButton("Tickets")
+        boton_tickets.setFixedHeight(40)
+        boton_tickets.setCursor(Qt.PointingHandCursor)
+
+        ruta_ticket = os.path.join(os.path.dirname(__file__), "ticket.png")
+        pix_ticket = QPixmap(ruta_ticket)
+
+        if not pix_ticket.isNull():
+            boton_tickets.setIcon(QIcon(pix_ticket))
+            boton_tickets.setIconSize(QSize(22, 22))
+
+        boton_tickets.setStyleSheet("""
+            QPushButton {
+                background-color: #0db36c;
+                color: white;
+                font-family: 'Times New Roman';
+                font-size: 15px;
+                padding: 8px 20px;
+                border-radius: 20px;
+            }
+            QPushButton:hover {
+                background-color: #0a9a5d;
+            }
+        """)
+
+        boton_tickets.clicked.connect(partial(self.mostrar_pagina, "Tickets"))
+
+        zona_derecha.addWidget(boton_tickets)
+
+        # ============================================
+        #              ENSAMBLAR BARRA
+        # ============================================
+        layout_general.addLayout(zona_izquierda, 1)
+        layout_general.addLayout(zona_centro, 2)
+        layout_general.addLayout(zona_derecha, 1)
+
         return nav_frame
 
     def mostrar_pagina(self, nombre):
-        """Cambia la página visible y actualiza el estilo activo de los botones"""
+        """Cambia la página visible y actualiza el estilo del menú"""
         for boton in self.botones_nav.values():
             boton.setObjectName("nav_button")
             boton.style().unpolish(boton)

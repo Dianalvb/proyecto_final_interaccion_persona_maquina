@@ -5,8 +5,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QUrl, QTimer
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtMultimediaWidgets import QVideoWidget
-from PySide6.QtGui import QPixmap
-from PySide6.QtGui import QDesktopServices
+from PySide6.QtGui import QPixmap, QDesktopServices
 import os
 
 
@@ -37,7 +36,6 @@ def crear_pagina_principal(parent=None, base_path=".", callback_feedback=None):
     layout_banner = QVBoxLayout(banner)
     layout_banner.setContentsMargins(0, 0, 0, 0)
     layout_banner.setSpacing(0)
-
 
     # 🎞️ Video local
     video_widget = QVideoWidget()
@@ -189,8 +187,6 @@ def crear_pagina_principal(parent=None, base_path=".", callback_feedback=None):
         QDesktopServices.openUrl(url)
     boton_feedback.clicked.connect(abrir_enlace)
 
-
-    # Conectar el botón de feedback al callback
     if callback_feedback is not None:
         boton_feedback.clicked.connect(callback_feedback)
 
@@ -205,6 +201,20 @@ def crear_pagina_principal(parent=None, base_path=".", callback_feedback=None):
     extra.setWordWrap(True)
     extra.setStyleSheet("background-color: #ffffff; padding: 80px; border-top: 3px solid #ccc;")
     layout_scroll.addWidget(extra)
+
+    # --------- CRÉDITOS ---------
+    creditos = QLabel("""
+        <h2 style="color:#1a1a2e; text-align:center;">Créditos</h2>
+        <p style="color:#444; text-align:center; font-size:18px; max-width:800px; margin:auto; line-height:1.5;">
+            Desarrollado por los Ingenieros en Sistemas: <b>Diana Constructions</b> y <b>ITZ</b>.<br>
+            Con apoyo de la <b>NASA</b> y colaboración de <b>Equipo de Diseño del Museo</b>.<br>
+            Gracias por hacer posible esta experiencia educativa y visual.
+        </p>
+    """)
+    creditos.setAlignment(Qt.AlignCenter)
+    creditos.setWordWrap(True)
+    creditos.setStyleSheet("background-color: #f5f5f5; padding: 60px; border-top: 3px solid #ccc;")
+    layout_scroll.addWidget(creditos)
 
     layout_scroll.addStretch()
     contenedor_scroll.setLayout(layout_scroll)

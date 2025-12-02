@@ -1,56 +1,146 @@
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGridLayout, QPushButton, QMessageBox
 from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QPixmap, QIcon, QPalette, QBrush
+import os
 import random
 from functools import partial
 
+
+# ----------------------------------------------------------
+# RUTA ABSOLUTA DEL ARCHIVO (SOLUCIÓN DEFINITIVA)
+# ----------------------------------------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def ruta(nombre_archivo):
+    """Devuelve la ruta absoluta del archivo, sin importar desde dónde se ejecute."""
+    return os.path.join(BASE_DIR, nombre_archivo)
+
+
+# ----------------------------------------------------------
+# PRUEBAS PARA VER SI LAS IMÁGENES EXISTEN
+# ----------------------------------------------------------
+print("---- PRUEBA DE ARCHIVOS ----")
+imagenes_prueba = [
+    "ACO_S.png",
+    "Messier_94.jpeg",
+    "Monkey.jpeg",
+    "NGC_1850.png",
+    "NGC_3603.png",
+    "NGC_4689.png",
+    "reverso.png",
+    "fondo.png"
+]
+
+for archivo in imagenes_prueba:
+    print(archivo, "->", os.path.exists(ruta(archivo)))
+print("----------------------------")
+
+
+# ----------------------------------------------------------
+# CLASE DE CADA CARTA
+# ----------------------------------------------------------
+class CartaMemorama(QPushButton):
+    def __init__(self, imagen_frente, imagen_reverso):
+        super().__init__()
+
+        self.imagen_frente = imagen_frente
+        self.imagen_reverso = imagen_reverso
+
+        self.volteada = False
+        self.emparejada = False
+
+        self.setFixedSize(130, 130)
+
+        self.setStyleSheet("""
+            QPushButton {
+                background-color: #0b0f26;
+                border-radius: 18px;
+                border: 3px solid #4a68ff;
+                padding: 0px;
+                margin: 0px;
+            }
+            QPushButton:hover {
+                border: 3px solid #7ea0ff;
+            }
+        """)
+
+        self.setIcon(QIcon(self.imagen_reverso))
+        self.setIconSize(self.size())
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.setIconSize(self.size())
+
+    def mostrar_frente(self):
+        self.setIcon(QIcon(self.imagen_frente))
+        self.setIconSize(self.size())
+        self.volteada = True
+
+    def mostrar_reverso(self):
+        self.setIcon(QIcon(self.imagen_reverso))
+        self.setIconSize(self.size())
+        self.volteada = False
+
+
+# ----------------------------------------------------------
+# CLASE PRINCIPAL DEL MEMORAMA
+# ----------------------------------------------------------
 class MemoramaApp(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+
         self.cartas_volteadas = []
         self.parejas_encontradas = 0
         self.intentos = 0
-        self.cartas = []
         self.bloqueado = False
-        
+
         self.temporizador = QTimer()
         self.temporizador.setSingleShot(True)
         self.temporizador.timeout.connect(self.ocultar_cartas)
-        
+
         self.init_ui()
-        
+
     def init_ui(self):
+
+        # ----------------------------------------------------------
+        # FONDO ESPACIAL (FUNCIONAL)
+        # ----------------------------------------------------------
+        fondo = QPixmap(ruta("fondo.png"))
+
+        palette = QPalette()
+        palette.setBrush(QPalette.Window, QBrush(fondo))
+        self.setPalette(palette)
+        self.setAutoFillBackground(True)
+
+        # ----------------------------------------------------------
+
         layout = QVBoxLayout(self)
 
-        # Título
-        titulo = QLabel("Memorama Astronómico ")
+        titulo = QLabel("Memorama Astronómico")
         titulo.setAlignment(Qt.AlignCenter)
         titulo.setStyleSheet("""
-            color: #ffffff;
-            font-size: 28px;
+            color: #a5baff;
+            font-size: 30px;
             font-weight: bold;
-            margin-bottom: 10px;
         """)
 
-        # Contador
         self.contador = QLabel("Intentos: 0")
         self.contador.setAlignment(Qt.AlignCenter)
         self.contador.setStyleSheet("""
-            color: #cccccc;
+            color: #e0e4ff;
             font-size: 18px;
-            margin-bottom: 10px;
         """)
-
-        # Grid del memorama
-        self.grid_layout = QGridLayout()
-        self.grid_layout.setSpacing(10)
 
         layout.addWidget(titulo)
         layout.addWidget(self.contador)
+
+        self.grid_layout = QGridLayout()
+        self.grid_layout.setSpacing(15)
         layout.addLayout(self.grid_layout)
 
-        # Botón reiniciar
-        self.btn_reiniciar = QPushButton("Reiniciar Juego")
-        self.btn_reiniciar.setStyleSheet("""
+        btn_reiniciar = QPushButton("Reiniciar Juego")
+        btn_reiniciar.clicked.connect(self.reiniciar_juego)
+        btn_reiniciar.setStyleSheet("""
             QPushButton {
                 background-color: #4CAF50;
                 color: white;
@@ -62,21 +152,31 @@ class MemoramaApp(QWidget):
                 background-color: #45a049;
             }
         """)
-        self.btn_reiniciar.clicked.connect(self.reiniciar_juego)
-        layout.addWidget(self.btn_reiniciar, alignment=Qt.AlignCenter)
+        layout.addWidget(btn_reiniciar, alignment=Qt.AlignCenter)
 
         self.crear_memorama()
 
+    # ----------------------------------------------------------
     def crear_memorama(self):
-        # Limpiar grid
-        while self.grid_layout.count():
-            item = self.grid_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
 
-        # Memorama con EMOJIS (sin imágenes)
-        emojis = ["🌕", "🪐", "☄️", "🌟", "🌌", "🛸"]
-        cartas = emojis * 2
+        while self.grid_layout.count():
+            w = self.grid_layout.takeAt(0).widget()
+            if w:
+                w.deleteLater()
+
+        # Usar imágenes directamente SIN carpeta
+        imagenes = [
+            ruta("ACO_S.png"),
+            ruta("Messier_94.jpeg"),
+            ruta("Monkey.jpeg"),
+            ruta("NGC_1850.png"),
+            ruta("NGC_3603.png"),
+            ruta("NGC_4689.png")
+        ]
+
+        reverso = ruta("reverso.png")
+
+        cartas = imagenes * 2
         random.shuffle(cartas)
 
         self.cartas = []
@@ -86,39 +186,19 @@ class MemoramaApp(QWidget):
         self.bloqueado = False
         self.actualizar_contador()
 
-        for i, emoji in enumerate(cartas):
-            boton = QPushButton("❓")  
-            boton.setFixedSize(110, 110)
-            boton.setStyleSheet("""
-                QPushButton {
-                    font-size: 40px;
-                    background-color: #222;
-                    border: 2px solid #555;
-                    border-radius: 15px;
-                    color: white;
-                }
-                QPushButton:hover {
-                    border: 2px solid #aaa;
-                }
-            """)
+        for i, img in enumerate(cartas):
+            carta = CartaMemorama(img, reverso)
+            carta.clicked.connect(partial(self.voltear_carta, carta))
 
-            boton.texto_frente = emoji
-            boton.volteada = False
-            boton.emparejada = False
+            self.grid_layout.addWidget(carta, i // 4, i % 4)
+            self.cartas.append(carta)
 
-            boton.clicked.connect(partial(self.voltear_carta, boton))
-
-            self.grid_layout.addWidget(boton, i // 4, i % 4)
-            self.cartas.append(boton)
-
+    # ----------------------------------------------------------
     def voltear_carta(self, carta):
         if self.bloqueado or carta.volteada or carta.emparejada:
             return
-        
-        carta.volteada = True
-        carta.setText(carta.texto_frente)
-        carta.update()
 
+        carta.mostrar_frente()
         self.cartas_volteadas.append(carta)
 
         if len(self.cartas_volteadas) == 2:
@@ -127,57 +207,45 @@ class MemoramaApp(QWidget):
             self.bloqueado = True
             QTimer.singleShot(300, self.verificar_pareja)
 
-    # SIN efectos / SIN animación
-    def animar_volteo(self, carta, mostrar):
-        if mostrar:
-            carta.setText(carta.texto_frente)
-        else:
-            carta.setText("❓")
-            carta.volteada = False
-
-        carta.update()
-
+    # ----------------------------------------------------------
     def verificar_pareja(self):
-        if len(self.cartas_volteadas) != 2:
-            return
-
         c1, c2 = self.cartas_volteadas
 
-        if c1.texto_frente == c2.texto_frente:
+        if c1.imagen_frente == c2.imagen_frente:
             c1.emparejada = True
             c2.emparejada = True
+            self.parejas_encontradas += 1
             self.cartas_volteadas.clear()
             self.bloqueado = False
-            self.parejas_encontradas += 1
 
             if self.parejas_encontradas == len(self.cartas) // 2:
-                QTimer.singleShot(200, self.mostrar_mensaje_ganador)
-
+                QMessageBox.information(
+                    self, "¡Felicidades!",
+                    f"¡Completaste el memorama en {self.intentos} intentos!"
+                )
         else:
-            self.temporizador.start(400)
+            self.temporizador.start(600)
 
+    # ----------------------------------------------------------
     def ocultar_cartas(self):
-        for carta in self.cartas_volteadas:
-            if not carta.emparejada:
-                carta.setText("❓")
-                carta.volteada = False
-                carta.update()
+        for c in self.cartas_volteadas:
+            if not c.emparejada:
+                c.mostrar_reverso()
 
         self.cartas_volteadas.clear()
         self.bloqueado = False
 
-    def mostrar_mensaje_ganador(self):
-        QMessageBox.information(self, "¡Felicidades!",
-            f"¡Completaste el memorama en {self.intentos} intentos!")
-
+    # ----------------------------------------------------------
     def actualizar_contador(self):
         self.contador.setText(
-            f"Intentos: {self.intentos}  |  Parejas: {self.parejas_encontradas}/{len(self.cartas)//2}"
+            f"Intentos: {self.intentos} | Parejas: {self.parejas_encontradas}/{len(self.cartas)//2}"
         )
 
+    # ----------------------------------------------------------
     def reiniciar_juego(self):
         self.crear_memorama()
 
 
+# ----------------------------------------------------------
 def crear_pagina_explorar(parent=None):
     return MemoramaApp(parent)

@@ -1,11 +1,9 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QGridLayout, QScrollArea,
-    QFrame, QPushButton, QSizePolicy, QFormLayout, QLineEdit,
-    QComboBox, QCheckBox, QRadioButton, QButtonGroup
+    QFrame, QPushButton, QSizePolicy
 )
 from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QGraphicsDropShadowEffect
 import os
 
 
@@ -14,7 +12,6 @@ def crear_pagina_tienda(parent=None):
     layout_principal = QVBoxLayout(pagina)
     layout_principal.setContentsMargins(0, 0, 0, 0)
 
-    
     scroll = QScrollArea()
     scroll.setWidgetResizable(True)
     scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -23,7 +20,7 @@ def crear_pagina_tienda(parent=None):
     contenido = QVBoxLayout(contenedor)
     contenido.setContentsMargins(0, 0, 0, 0)
 
-    
+    # Portada
     portada = QLabel()
     ruta_portada = os.path.join(os.path.dirname(__file__), "logoahorasi.png")
     px = QPixmap(ruta_portada)
@@ -36,7 +33,7 @@ def crear_pagina_tienda(parent=None):
 
     contenido.addWidget(portada)
 
-    
+    # Título
     titulo = QLabel("Online Boutique – Museo de Astronomía")
     titulo.setStyleSheet("""
         color: #2e2e2e;
@@ -65,7 +62,7 @@ def crear_pagina_tienda(parent=None):
     contenido.addWidget(titulo)
     contenido.addWidget(descripcion)
 
-    
+    # Productos
     grid = QGridLayout()
     grid.setContentsMargins(40, 30, 40, 10)
     grid.setHorizontalSpacing(35)
@@ -147,85 +144,7 @@ def crear_pagina_tienda(parent=None):
 
     contenido.addLayout(grid)
 
-   
-    card = QFrame()
-    card.setStyleSheet("background-color: white; border-radius: 14px;")
-    card_layout = QFormLayout(card)
-    card_layout.setContentsMargins(40, 40, 40, 40)
-    card_layout.setSpacing(18)
-
-    sombra = QGraphicsDropShadowEffect()
-    sombra.setBlurRadius(40)
-    sombra.setXOffset(0)
-    sombra.setYOffset(8)
-    sombra.setColor(Qt.black)
-    card.setGraphicsEffect(sombra)
-
-    nombre = QLineEdit()
-    nombre.setPlaceholderText("Tu nombre completo")
-
-    boletos = QComboBox()
-    boletos.addItems([
-        "Entrada general – $120",
-        "Entrada nocturna – $150",
-        "Pase anual – $700",
-        "Entrada infantil – $80"
-    ])
-
-    extra1 = QCheckBox("Visita guiada por astrónomo (+$50)")
-    extra2 = QCheckBox("Acceso al telescopio solar (+$30)")
-    extra3 = QCheckBox("Audioguía digital (+$25)")
-
-    pago_label = QLabel("Método de pago")
-    rb1 = QRadioButton("Tarjeta")
-    rb2 = QRadioButton("Efectivo")
-    rb3 = QRadioButton("Pago digital")
-
-    grupo = QButtonGroup(card)
-    grupo.addButton(rb1)
-    grupo.addButton(rb2)
-    grupo.addButton(rb3)
-
-    btn_comprar = QPushButton("Comprar Entradas")
-    btn_comprar.setStyleSheet("""
-        QPushButton {
-            background-color: #006241;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 15px;
-        }
-        QPushButton:hover {
-            background-color: #00845c;
-        }
-    """)
-
-    btn_cancelar = QPushButton("Cancelar")
-    btn_cancelar.setStyleSheet("""
-        QPushButton {
-            background-color: #b00020;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 15px;
-        }
-        QPushButton:hover {
-            background-color: #c62828;
-        }
-    """)
-
-    card_layout.addRow("Nombre:", nombre)
-    card_layout.addRow("Tipo de entrada:", boletos)
-    card_layout.addRow(extra1)
-    card_layout.addRow(extra2)
-    card_layout.addRow(extra3)
-    card_layout.addRow(pago_label)
-    card_layout.addWidget(rb1)
-    card_layout.addWidget(rb2)
-    card_layout.addWidget(rb3)
-    card_layout.addRow(btn_comprar, btn_cancelar)
-
-    contenido.addWidget(card, alignment=Qt.AlignCenter)
+    # (Se eliminó la tarjeta de compra completa)
 
     scroll.setWidget(contenedor)
     layout_principal.addWidget(scroll)
