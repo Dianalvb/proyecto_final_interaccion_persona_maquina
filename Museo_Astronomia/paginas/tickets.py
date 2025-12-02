@@ -134,8 +134,8 @@ def crear_pagina_tickets(parent=None):
     btn_cancelar = QPushButton("Cancelar")
     btn_cancelar.setStyleSheet("""
         QPushButton {
-            background-color: #b00020;
-            color: white;
+            background-color: #b71c1c;
+            color: black;
             padding: 10px 20px;
             border-radius: 10px;
             font-size: 15px;

@@ -78,7 +78,7 @@ def crear_pagina_principal(parent=None, base_path=".", callback_feedback=None):
     # 🧭 Sección de bienvenida
     bienvenida = QLabel("""
         <h2 style="color:#293170; text-align:center;">Explora el universo</h2>
-        <p style="color:#333333; text-align:center; font-size:20px; max-width:900px; margin:auto;">
+        <p style="font: bold ;color:#333333; text-align:center; font-size:20px; max-width:900px; margin:auto;">
             Descubre los secretos de las estrellas, planetas y galaxias a través de experiencias interactivas y visuales únicas.
         </p>
     """)
